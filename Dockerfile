@@ -1,9 +1,22 @@
-# [Choice] Ubuntu version (use hirsuite or bionic on local arm64/Apple Silicon): hirsute, focal, bionic
-ARG VARIANT="hirsute"
-FROM mcr.microsoft.com/vscode/devcontainers/base:0-${VARIANT}
+FROM ubuntu
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends python3 python3-pip git curl make
 
+RUN useradd -ms /bin/bash vscode
 
+ENV NODE_VERSION=16.13.0
+
+USER vscode
+
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+ENV NVM_DIR=/home/vscode/.nvm
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
+ENV PATH="/vscode/.nvm/versions/node/v${NODE_VERSION}/bin/:${PATH}"
+
+COPY requirements.txt /requirements.txt
+RUN pip install -r /requirements.txt
+
+WORKDIR /workdir
