@@ -18,7 +18,7 @@ function updateCam(camera: THREE.PerspectiveCamera, ang: { lat: number, lon: num
 }
 
 export function cameraControls(camera: THREE.PerspectiveCamera) {
-    const ang = { lat: 0.0, lon: 0.0, r: 4.0 };
+    const ang = { lat: 0.4, lon: 0.1, r: 4.0 };
     updateCam(camera, ang);
 
     window.onmousemove = ((ev: MouseEvent) => {

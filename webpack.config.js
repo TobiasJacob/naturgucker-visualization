@@ -23,7 +23,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
                 use: ['style-loader', 'css-loader'],
             },
             {
-              test: /\.(png|svg|jpg|jpeg|gif)$/i,
+              test: /\.(png|svg|jpg|jpeg|gif|tif)$/i,
               type: 'asset/resource',
             },
         ],

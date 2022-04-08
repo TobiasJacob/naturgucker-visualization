@@ -9,8 +9,8 @@ export function createCanvas() {
 
     document.body.appendChild(renderer.domElement);
 
-    const light = new THREE.PointLight(0xffffff, 2);
-    light.position.set(10, 10, 10);
+    const light = new THREE.PointLight(0xffffff, 1);
+    light.position.set(10, 0, 0);
     scene.add(light);
 
     const ambient_light = new THREE.AmbientLight(0xffffff, 0.3);
