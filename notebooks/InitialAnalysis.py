@@ -4,6 +4,7 @@ import dask.dataframe as dd
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import pandas as pd
+import os
 
 # %%
 df = dd.read_hdf("../data/reduced-data.hdf", "/data")
@@ -37,7 +38,8 @@ subset = subset.sample(frac=1).reset_index(drop=True)
 subset
 
 # %%
-p = int(0.1 * subset.shape[0])
+fract = 0.1
+p = int(fract * subset.shape[0])
 
 fig = plt.figure(figsize=(15, 10))
 m = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
@@ -49,4 +51,29 @@ m.scatter(subset['decimalLongitude'][:p], subset['decimalLatitude'][:p], c=subse
 plt.title("Equidistant Cylindrical Projection")
 # plt.savefig("fig.png")
 plt.show()
+# %%
+frequenc_spec = groups[groups["gbifID"] > 100000]
+frequenc_spec
+
+#%%
+os.makedirs("../data/subsets", exist_ok=True)
+for spec in frequenc_spec.index:
+    print(spec)
+    print("computing subset")
+    subset = df[df['species'] == spec]
+    subset = subset.sample(frac=fract).reset_index(drop=True)
+    subset = subset.compute()
+    print("saving subset")
+    subset.to_csv(f"../data/subsets/{spec}.csv")
+    print("saving figure")
+    fig = plt.figure(figsize=(15, 10))
+    m = Basemap(projection='cyl',llcrnrlat=-90,urcrnrlat=90,\
+                llcrnrlon=-180,urcrnrlon=180,resolution='c')
+    m.bluemarble()
+    m.drawparallels(np.arange(-90.,91.,30.))
+    m.drawmeridians(np.arange(-180.,181.,60.))
+    m.scatter(subset['decimalLongitude'][:p], subset['decimalLatitude'][:p], c=subset['eventDate'][:p], latlon=True)
+    plt.title(f"{spec}: {subset.shape[0]} samples")
+    plt.savefig(f"../data/subsets/{spec}.png")
+    plt.close(fig)
 # %%
