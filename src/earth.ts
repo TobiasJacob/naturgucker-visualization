@@ -26,13 +26,14 @@ const shader = {
         uniform sampler2D normalMap;
         uniform sampler2D specularMap;
 
-        uniform vec3 sunDirection;
-
         varying vec2 vUV;
         varying vec3 vNormal;
         varying vec3 vViewCoord;
 
         void main(void) {
+            vec3 specularColor = vec3(0.3, 0.3, 0.3);
+            vec3 sunDirection = vec3(1, 0, 0);
+
             vec3 dayColor = texture2D(dayTexture, vUV).rgb;
             vec3 nightColor = texture2D(nightTexture, vUV).rgb;
             vec3 vSunDir = normalize(mat3(viewMatrix) * sunDirection);
@@ -40,7 +41,9 @@ const shader = {
             vec3 vViewDir = normalize(-vViewCoord);
 
             vec3 halfVector = normalize(vViewDir + vSunDir);
-            float specular = dot(halfVector, vNormalN);
+            float shininess = 30.0;
+            float specular_intensity = pow(max(dot(vNormalN, halfVector), 0.0), shininess);
+            specular_intensity *= 0.3 + 0.7 * texture2D(specularMap, vUV).r;
 
             float cosineAngleSunToNormal = dot(vNormalN, vSunDir);
             float cosineAngleSunToNormalScaled = clamp(cosineAngleSunToNormal * 4.0, -1.0, 1.0);
@@ -49,6 +52,8 @@ const shader = {
             float intensity = 0.5 + 0.5 * clamp(cosineAngleSunToNormal, 0.0, 1.0);
 
             vec3 color = mix(nightColor, dayColor * intensity, mixAmount);
+            color += specular_intensity * specularColor;
+            color *= 0.8;
             gl_FragColor = vec4(color, 1.0);
         }
     `
@@ -65,9 +70,6 @@ export function createEarth(scene: THREE.Scene) {
         // specular: new THREE.Color(0x333333),
         // shininess: 50,
         uniforms: {
-            sunDirection: {
-                value: new THREE.Vector3(1, 0, 0)
-            },
             dayTexture: {
                 value: THREE.ImageUtils.loadTexture(earthmap)
             },
