@@ -3,7 +3,10 @@ import * as THREE from 'three';
 import { createCanvas } from "./canvas";
 import { createEarth } from "./earth";
 import { cameraControls } from "./cameraControls";
+import { startAnimation } from "./animate";
 
-const { scene, camera } = createCanvas();
+const { scene, camera, renderer } = createCanvas();
+const earthMesh = createEarth(scene);
 cameraControls(camera);
-createEarth(scene);
+
+startAnimation(renderer, scene, camera, earthMesh);

@@ -103,5 +103,7 @@ export function createEarth(scene: THREE.Scene) {
     material.specularMap = THREE.ImageUtils.loadTexture(earthspec);
     material.specular = new THREE.Color('gray');
     material.shininess = 3;
+
+    return earthMesh;
 };
 

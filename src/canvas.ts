@@ -17,24 +17,16 @@ export function createCanvas() {
     ambient_light.position.set(10, 10, 10);
     scene.add(ambient_light);
 
-    function animate() {
-        requestAnimationFrame(animate);
-
-        renderer.render(scene, camera);
-    };
-
-    animate();
     const axesHelper = new THREE.AxesHelper(5);
     scene.add(axesHelper);
     window.addEventListener('resize', onWindowResize, false);
 
     function onWindowResize() {
-
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
 
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
-    return { scene, camera }
+    return { scene, camera, renderer }
 }
