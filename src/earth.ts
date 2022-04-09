@@ -63,7 +63,7 @@ const shader = {
 
 
 export function createEarth(scene: THREE.Scene) {
-    const geometry = new THREE.SphereGeometry(1.0, 32, 32)
+    const geometry = new THREE.SphereGeometry(1.0, 32, 64)
     // const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     const material = new THREE.MeshPhongMaterial();
     const earthMaterial = new THREE.ShaderMaterial({
