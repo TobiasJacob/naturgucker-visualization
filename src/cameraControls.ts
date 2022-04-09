@@ -18,7 +18,7 @@ function updateCam(camera: THREE.PerspectiveCamera, ang: { lat: number, lon: num
 }
 
 export function cameraControls(camera: THREE.PerspectiveCamera) {
-    const ang = { lat: 0.4, lon: 0.1, r: 4.0 };
+    const ang = { lat: 0.4, lon: 0.1, r: 1.5 };
     updateCam(camera, ang);
 
     window.onmousemove = ((ev: MouseEvent) => {
@@ -34,7 +34,7 @@ export function cameraControls(camera: THREE.PerspectiveCamera) {
     window.onwheel = ((ev: WheelEvent) => {
         const closest = 1.00;
         ang.r += -ev.deltaY / 2000. * (ang.r - closest);
-        ang.r = Math.max(Math.min(ang.r, 10), closest + 0.02)
+        ang.r = Math.max(Math.min(ang.r, 4), closest + 0.02)
         updateCam(camera, ang);
     })
 

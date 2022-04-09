@@ -8,12 +8,14 @@ import earthspec from './textures/earthspec1k.jpg';
 
 const shader = {
     vertex: `
-        varying vec2 vUv;
+        varying vec2 vUV;
         varying vec3 vNormal;
+        varying vec3 vViewCoord;
 
         void main() {
-            vUv = uv;
+            vUV = uv;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewCoord = vec3(mvPosition);
             vNormal = normalMatrix * normal;
             gl_Position = projectionMatrix * mvPosition;
         }
@@ -21,25 +23,32 @@ const shader = {
     fragment: `
         uniform sampler2D dayTexture;
         uniform sampler2D nightTexture;
+        uniform sampler2D normalMap;
+        uniform sampler2D specularMap;
 
         uniform vec3 sunDirection;
 
-        varying vec2 vUv;
+        varying vec2 vUV;
         varying vec3 vNormal;
+        varying vec3 vViewCoord;
 
         void main(void) {
-            vec3 dayColor = texture2D(dayTexture, vUv).rgb;
-            vec3 nightColor = texture2D(nightTexture, vUv).rgb;
-            vec3 vSunDir = mat3(viewMatrix) * sunDirection;
+            vec3 dayColor = texture2D(dayTexture, vUV).rgb;
+            vec3 nightColor = texture2D(nightTexture, vUV).rgb;
+            vec3 vSunDir = normalize(mat3(viewMatrix) * sunDirection);
+            vec3 vNormalN = normalize(vNormal);
+            vec3 vViewDir = normalize(-vViewCoord);
 
-            float cosineAngleSunToNormal = dot(normalize(vNormal), vSunDir);
+            vec3 halfVector = normalize(vViewDir + vSunDir);
+            float specular = dot(halfVector, vNormalN);
 
-            cosineAngleSunToNormal = clamp(cosineAngleSunToNormal * 5.0, -1.0, 1.0);
+            float cosineAngleSunToNormal = dot(vNormalN, vSunDir);
+            float cosineAngleSunToNormalScaled = clamp(cosineAngleSunToNormal * 4.0, -1.0, 1.0);
+            float mixAmount = cosineAngleSunToNormalScaled * 0.5 + 0.5;
 
-            float mixAmount = cosineAngleSunToNormal * 0.5 + 0.5;
+            float intensity = 0.5 + 0.5 * clamp(cosineAngleSunToNormal, 0.0, 1.0);
 
-            vec3 color = mix(nightColor, dayColor, mixAmount);
-
+            vec3 color = mix(nightColor, dayColor * intensity, mixAmount);
             gl_FragColor = vec4(color, 1.0);
         }
     `
@@ -64,10 +73,16 @@ export function createEarth(scene: THREE.Scene) {
             },
             nightTexture: {
                 value: THREE.ImageUtils.loadTexture(earthmapnight)
+            },
+            normalMap: {
+                value: THREE.ImageUtils.loadTexture(earthnormal)
+            },
+            specularMap: {
+                value: THREE.ImageUtils.loadTexture(earthspec)
             }
         },
         vertexShader: shader.vertex,
-        fragmentShader: shader.fragment
+        fragmentShader: shader.fragment,
     });
 
     const earthMesh = new THREE.Mesh(geometry, earthMaterial)
