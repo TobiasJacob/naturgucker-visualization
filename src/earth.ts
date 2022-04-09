@@ -26,13 +26,14 @@ const shader = {
         uniform sampler2D normalMap;
         uniform sampler2D specularMap;
 
+        uniform vec3 sunDirection;
+
         varying vec2 vUV;
         varying vec3 vNormal;
         varying vec3 vViewCoord;
 
         void main(void) {
             vec3 specularColor = vec3(0.3, 0.3, 0.3);
-            vec3 sunDirection = vec3(1, 0, 0);
 
             vec3 dayColor = texture2D(dayTexture, vUV).rgb;
             vec3 nightColor = texture2D(nightTexture, vUV).rgb;
@@ -70,6 +71,9 @@ export function createEarth(scene: THREE.Scene) {
         // specular: new THREE.Color(0x333333),
         // shininess: 50,
         uniforms: {
+            sunDirection: {
+                value: new THREE.Vector3(1.0, 0, 0)
+            },
             dayTexture: {
                 value: THREE.ImageUtils.loadTexture(earthmap)
             },
